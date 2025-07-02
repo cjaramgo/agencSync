@@ -1,12 +1,13 @@
-import { test, expect } from '../fixtures/test.fixture';
+const { test, expect } = require('../fixtures/test.fixture');
 const TestDataFactory = require('../utils/TestDataFactory');
 
 test.beforeEach( async ({ accountPage }) => {
     await accountPage.navigate('/');
 })
 
-test('Should create a Salesforce account', async ({ accountPage, testData }) => {
+test('Create an account via UI', async ({ accountPage, testData }) => {
     const {account} = testData;
+    await accountPage.navigate('/');
     accountPage.goToAccount()
     accountPage.createAccount(account)
     const message = await accountPage.getToastText()
@@ -17,6 +18,6 @@ test('Should create a Salesforce account', async ({ accountPage, testData }) => 
 });
 
 
-test.afterEach( async ({page}) => {
-    await page.close()
+test.afterEach( async ({ accountPage }) => {
+    await accountPage.page.close()
 })

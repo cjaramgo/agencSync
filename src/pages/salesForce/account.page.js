@@ -21,6 +21,11 @@ class AccountPage extends BasePage {
         this.accountsTab.click()
     }
 
+    async openAccountDetail(accountId) {
+        await this.page.goto(`/lightning/r/Account/${accountId}/view`);
+        await this.page.waitForURL(/.*Account.*/);
+    }
+
     async createAccount(account) {
         await this.newAccountButton.click()
         await this.accountNameInput.fill(account.accountName)

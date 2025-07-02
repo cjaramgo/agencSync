@@ -5,8 +5,10 @@ test.beforeEach( async ({ contactPage }) => {
     await contactPage.navigate('/');
 })
 
-test('Should create a Salesforce contact', async ({ contactPage, testData }) => {
+test('Create a contact via UI', async ({ contactPage, testData }) => {
     const {contact} = testData;
+
+    await contactPage.navigate('/');
     contactPage.goToContacts()
     contactPage.createContact(contact)
     const message = await contactPage.getToastText()
@@ -17,6 +19,6 @@ test('Should create a Salesforce contact', async ({ contactPage, testData }) => 
 });
 
 
-test.afterEach( async ({page}) => {
-    await page.close()
+test.afterEach( async ({ contactPage }) => {
+    await contactPage.page.close()
 })

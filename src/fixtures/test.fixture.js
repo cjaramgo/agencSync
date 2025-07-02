@@ -6,6 +6,7 @@ const { AccountPage } = require('../pages/salesForce/account.page');
 const { ContactPage } = require('../pages/salesForce/contact.page');
 const { HomePage } = require('../pages/salesForce/home.page');
 const TestDataFactory = require('../utils/TestDataFactory');
+const SalesforceAPIClient = require('../utils/SalesforceAPIClient')
 
 
 const test = base.extend({
@@ -31,7 +32,16 @@ const test = base.extend({
       contact: TestDataFactory.generateContact()
     };
     await use(data);
-  }
+  },
+
+  api: async ({}, use) => {
+    const sf = new SalesforceAPIClient();
+
+    await sf.authenticate(); // Connect to the API
+    await use(sf);           
+    await sf.close();        // Cleanup
+  },
+
 });
 
 module.exports = {

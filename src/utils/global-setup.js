@@ -1,6 +1,5 @@
 const { chromium } = require('@playwright/test');
 const { LoginPage } = require('../pages/salesForce/login.page');
-// require('dotenv').config();
 
 module.exports = async () => {
   const browser = await chromium.launch();
