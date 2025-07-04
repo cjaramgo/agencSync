@@ -6,7 +6,7 @@ test.beforeEach( async ({ accountPage }) => {
 })
 
 test('Create an account via UI', async ({ accountPage, testData }) => {
-    const {account} = testData;
+    const account = testData.generateAccount();
     await accountPage.navigate('/');
     accountPage.goToAccount()
     accountPage.createAccount(account)

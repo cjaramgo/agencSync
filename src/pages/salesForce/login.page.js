@@ -30,7 +30,7 @@ class LoginPage extends BasePage {
         await this.usernameInput.fill(username);
         await this.passwordInput.fill(password);
         await this.loginButton.click();
-        await this.page.waitForURL('**/lightning/page/home');
+        await this.page.waitForURL('**/lightning/o/Dashboard/home');
     }
 }
 module.exports = { LoginPage };

@@ -19,6 +19,7 @@ class AccountPage extends BasePage {
 
     async goToAccount() {
         this.accountsTab.click()
+        await this.page.waitForURL(/.*Account.*/);
     }
 
     async openAccountDetail(accountId) {

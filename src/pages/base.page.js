@@ -16,6 +16,7 @@ class BasePage {
    */
   async navigate(url) {
     await this.page.goto(url);
+    await this.page.locator('.slds-spinner').waitFor({ state: 'hidden', timeout: 10000 });
     await this.page.waitForLoadState('domcontentloaded');
   }
 
@@ -50,6 +51,10 @@ class BasePage {
   async getPrimaryField() {
     const primaryField = this.page.locator('[slot="primaryField"]')
     return await primaryField.textContent()
+  }
+
+  async waitForModal(){
+    await this.page.waitForSelector('[role="dialog"]', { state: 'visible', timeout: 10000 });
   }
 
   /**

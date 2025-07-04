@@ -10,6 +10,13 @@ class TestDataFactory {
     };  
   }
 
+  static generateEmail(firstName, lastName) {
+    const domain = faker.internet.domainName();
+    const clean = (str) => str.replace(/[^a-z]/g, '');
+    
+    return `${clean(firstName.toLowerCase())}.${clean(lastName.toLowerCase())}@${domain}`;
+  }
+
   static generateContact() {
     const salutations = ['Mr.', 'Ms.', 'Mrs.'];
     const firstName = faker.person.firstName();
@@ -19,9 +26,11 @@ class TestDataFactory {
       firstName: firstName,
       lastName: lastName,
       phoneNumber: faker.phone.number('+1-###-###-####'),
-      email: faker.internet.email(),
+      email: TestDataFactory.generateEmail(firstName, lastName),
       fullName: `${firstName} ${lastName}`
     };
   }
+
+
 }
 module.exports = TestDataFactory;

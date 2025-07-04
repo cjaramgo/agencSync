@@ -27,11 +27,7 @@ const test = base.extend({
   },
 
   testData: async ({}, use) => {
-    const data = {
-      account: TestDataFactory.generateAccount(),
-      contact: TestDataFactory.generateContact()
-    };
-    await use(data);
+    await use(TestDataFactory);
   },
 
   api: async ({}, use) => {
