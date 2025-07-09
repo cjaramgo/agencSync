@@ -30,7 +30,8 @@ module.exports = defineConfig({
   forbidOnly: !!process.env.CI,
   
   // Retry tests
-  retries: parseInt(process.env.RETRY_COUNT) || 2,
+  // retries: parseInt(process.env.RETRY_COUNT) || 0,
+  retries: 0,
   
   // Opt out of parallel tests on CI
   workers: 1,
@@ -44,7 +45,7 @@ module.exports = defineConfig({
 
   // Global setup and teardown
   globalSetup: require.resolve('./src/utils/global-setup'),
-  globalTeardown: require.resolve('./src/utils/global-teardown.js'),
+  // globalTeardown: require.resolve('./src/utils/global-teardown.js'),
   
   // Shared settings for all projects
   use: {
@@ -84,12 +85,17 @@ module.exports = defineConfig({
   // Configure projects for major browsers
   projects: [
     {
+      name: 'setup',
+      testMatch: /global\.setup\.js/,
+    },
+    {
       name: 'salesforce',
       use: { 
         ...devices['Desktop Chrome'],
         storageState: './storageState.json',
         viewport: { width: 1280, height: 720 },
-      }
+      },
+      dependencies: ['setup']
     }
   ],
   

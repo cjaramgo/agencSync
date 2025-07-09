@@ -19,7 +19,10 @@ class ContactPage extends BasePage {
         this.lightningCard = this.page.locator('lightning-card');
         this.showMoreButton = this.page.getByRole('button', { name: 'Show More', exact: true });
         this.profileSelect = this.page.locator('button[name="ProfileId"]');
+        this.enableUserButton = this.page.getByRole('menuitem', { name: 'Enable Customer User' });
+        this.viewCustomerUserButton = this.page.getByRole('menuitem', { name: 'View Customer User' });
         this.saveButton = this.page.getByRole('button', { name: 'Save', exact: true });
+        this.createUserButton = this.page.getByRole('button', { name: 'Create User' });
     }
 
     async goToContacts() {
@@ -28,18 +31,46 @@ class ContactPage extends BasePage {
         }
     
     async selectSalutation(salutation) {
-        this.salutationSelect.click()
+        await this.salutationSelect.click()
         await this.page.locator(`lightning-base-combobox-item[data-value="${salutation}"]`).click()
     }
 
     async selectParentAccount(accountName){
-        this.accountSelect.click()
+        await this.accountSelect.click()
         await this.page.locator(`span[title="${accountName}"]`).click();
     }
 
     async selectUserProfile(userProfile){
-        this.accountSelect.click()
-        await this.page.locator('option', { name: userProfile }).click()
+        await this.profileSelect.click()
+        await this.page.getByRole('option', { name: userProfile }).click()
+    }
+
+    async getContactId() {
+        await this.page.waitForLoadState('load');
+        await this.page.waitForSelector('.slds-notify__content', { state: 'hidden'});
+        const url = this.page.url();
+        const contactIdMatch = url.match(/\/Contact\/([a-zA-Z0-9]{15,18})\//);
+        const contactId = contactIdMatch ? contactIdMatch[1] : null;
+        if (contactId) {
+            console.log('Contact ID:', contactId);
+            return contactId;
+        } else {
+            console.error('Could not get contact ID');
+        }
+    }
+
+    async navigateToContactDetail(contactId) {
+        const contactUrl = `/lightning/r/Contact/${contactId}/view`;
+        const currentUrl = this.page.url()
+        const { pathname } = new URL(currentUrl);
+        if (pathname != contactUrl) {
+            await this.page.goto(contactUrl);
+            await this.page.waitForURL(/.*Contact.*/);
+        }
+    }
+
+    async getLightingCardInfo() {
+        return await this.lightningCard.getByRole('cell').allInnerTexts()
     }
 
     async createContact(contact) {
@@ -52,15 +83,23 @@ class ContactPage extends BasePage {
         await this.phoneInput.fill(contact.phoneNumber);
         await this.emailInput.fill(contact.email);
         await this.saveButton.click();
-        await this.page.waitForURL(/.*Contact.*/);
+        await this.waitForModalDisappear()
+        // await this.page.waitForURL(/.*Contact.*/);
     }
 
-    async createUser(contactId, userProfile) {
-        await this.showMoreButton.click()
+    async enableUser(userProfile) {
+        await this.showMoreButton.click();
+        await this.enableUserButton.click();
         await this.waitForModal();
-        await this.profileSelect.click()
-        await this.selectUserProfile(userProfile)
+        await this.selectUserProfile(userProfile);
+        await this.createUserButton.click();
+        await this.waitForModalDisappear();
+    }
 
+    async viewCustomerUser(){
+        await this.showMoreButton.click();
+        await this.viewCustomerUserButton.click()
+        await this.page.waitForLoadState('domcontentloaded');
     }
 
 }

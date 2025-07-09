@@ -1,39 +1,66 @@
 const { test, expect } = require('../fixtures/test.fixture');
-const TestDataFactory = require('../utils/TestDataFactory');
 
+let contactId
+let message
+let contactName
+let cardInfo
+const userProfile = 'AgentSync Internal Portal'
 
-test('Create a contact via UI', async ({ contactPage, testData }) => {
+test.beforeEach( async ({ contactPage }) => {
+
+    await test.step('Navigate to Contacts', async () => {
+        await contactPage.navigate('/lightning/o/Contact/list');
+    });
+})
+
+test('Should enable Contact as a Portal User', async ({ contactPage, testData, setupPage }) => {
     const contact = testData.generateContact();
 
-    try {
+    await test.step('Create new contact', async () => {
+        await contactPage.createContact(contact);
 
-        await test.step('Navigate to Contact list', async () => {
-            await contactPage.navigate('/lightning/o/Contact/list');
+        message = await contactPage.getToastText();
+        contactName = await contactPage.getPrimaryField();
+
+        expect(message).toContain(`Contact "${contact.fullName}" was created.`);
+        expect(contactName).toEqual(contact.fullName);
+            
+        contactId = await contactPage.getContactId();
+    });
+
+    await test.step('Enable contact as Portal user', async () => {
+        await contactPage.navigateToContactDetail(contactId);
+        await contactPage.enableUser(userProfile)
+    });
+
+    await test.step('Verify user is enabled', async () => {
+        message = await contactPage.getToastText();
+        cardInfo = await contactPage.getLightingCardInfo();
+
+        expect(message).toContain(`A user was created with username: ${contact.email}`);
+        expect(cardInfo[0]).toContain(userProfile);
+        expect(cardInfo[2]).toEqual(contact.email);
+    });
+
+    await test.step('Verify Federation ID is displayed', async () => {
+        const setup = await setupPage(async () => {
+            await contactPage.viewCustomerUser();
         });
 
-        await test.step('Create new contact', async () => {
-            contactPage.createContact(contact)
-        });
+        setup.waitForUserIframe()
+        const userIframe = await setup.getUserIframe();
+                
+        const FederationId = await userIframe.getColumnValue('Federation ID')
+        const activeUser = await userIframe.isActiveUser()
 
-        await test.step('Verify contact created', async () => {
-
-            const message = await contactPage.getToastText()
-            const contactName = await contactPage.getPrimaryField()
-        
-            expect(message).toContain(`Contact "${contact.fullName}" was created.`)
-            expect(contactName).toEqual(contact.fullName)
-        });
-
-    } finally {
-        await test.step('Teardown: delete contact', async () => {
-            console.log('contact removed')
-            // await deleteContactByName(contactName); // tu lógica de limpieza
-        });
-    }
+        expect(FederationId).toContain(contact.email)
+        expect(activeUser).toBe(true);
+    });
 
 });
 
+//crear otro test llamado verify FederationID
 
-test.afterEach( async ({ contactPage }) => {
-    await contactPage.page.close()
-})
+// test.afterEach( async ({ contactPage }) => {
+//     await contactPage.page.close()
+// })

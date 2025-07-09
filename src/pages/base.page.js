@@ -8,6 +8,8 @@ class BasePage {
    */
   constructor(page) {
     this.page = page;
+    this.modal = this.page.locator('.slds-modal[role="dialog"]');
+    this.toast = this.page.locator('.slds-notify__content');
   }
 
   /**
@@ -39,9 +41,8 @@ class BasePage {
    * @returns {Promise<string>} Toast message text
    */
   async getToastText() {
-    const toast = this.page.locator('.slds-notify__content');
-    await toast.isVisible()
-    return await toast.textContent();
+    await this.toast.isVisible();
+    return await this.toast.textContent();
   }
 
   /**
@@ -54,7 +55,29 @@ class BasePage {
   }
 
   async waitForModal(){
-    await this.page.waitForSelector('[role="dialog"]', { state: 'visible', timeout: 10000 });
+    await this.modal.waitFor({ state: 'visible', timeout: 10000 });
+  }
+
+  async waitForModalDisappear(){
+    await this.modal.waitFor({ state: 'hidden', timeout: 10000 });
+  }
+
+  async waitForToast() {
+    await this.toast.waitFor({ state: 'visible', timeout: 10000 });
+  }
+
+  async waitForToastDisappear() {
+    await this.toast.waitFor({ state: 'hidden', timeout: 10000 });
+  }
+
+  /**
+   * Wait until an element is visible or hidden
+   * @param {Locator} element - Element Playwright (Locator)
+   * @param {'visible'|'hidden'|'attached'|'detached'} state
+   * @param {number} timeout
+   */
+  async waitForElement(element, state = 'visible', timeout = 10000) {
+    await element.waitFor({ state, timeout });
   }
 
   /**
